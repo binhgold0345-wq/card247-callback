@@ -2163,5 +2163,22 @@ def main():
     print("\033[1;32m⚙️ Hệ thống v99.9 Đang Kết Nối Đồng Bộ Sang Khung Hộp Rich Panel...\033[0m")
     application.run_polling()
 
+from threading import Thread
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+# Tạo một server web ảo để giữ Render không tắt
+class KeepAliveHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Bot is running!")
+
+def run_fake_web_server():
+    server_address = ('', 10000) # Render yêu cầu cổng 10000
+    httpd = HTTPServer(server_address, KeepAliveHandler)
+    httpd.serve_forever()
+
 if __name__ == "__main__":
+    # Chạy tool Python chính và Server ảo song song
+    Thread(target=run_fake_web_server, daemon=True).start()
     main()
